@@ -31,3 +31,5 @@ Any patient's age exceeds 89 is listed as "90".
 
 <li>Dataset</li>: field used to split the data into two sets (patient with liver disease, or no disease)
 </ul>
+<h3> Deployment Link</h3>
+<a href="https://liverguard-sz6qrbgfisiwket43wazcm.streamlit.app/">LiverGuard</a>
