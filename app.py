@@ -9,30 +9,20 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import RandomForestClassifier
-from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, when
 
 # Suppress warnings
 import warnings
 warnings.filterwarnings('ignore')
 
-# Initialize Spark session
-spark = SparkSession.builder \
-    .appName("LiverDiseasePrediction") \
-    .getOrCreate()
-
 # Load the dataset
 @st.cache_data
 def load_data():
-    path = 'Indian_Liver_Patients_Dataset.csv'
-    sdf = spark.read.csv(path, header=True, inferSchema=True)
-    return sdf.toPandas()  # Convert to Pandas DataFrame
+    return pd.read_csv('Indian_Liver_Patients_Dataset.csv')
 
 liver_df = load_data()
 
 # Data preprocessing
-liver_df['Gender_Male'] = liver_df['Gender'].apply(lambda x: 1 if x == 'Male' else 0)
-liver_df['Gender_Female'] = liver_df['Gender'].apply(lambda x: 1 if x == 'Female' else 0)
+liver_df = pd.concat([liver_df, pd.get_dummies(liver_df['Gender'], prefix='Gender')], axis=1)
 liver_df['Albumin_and_Globulin_Ratio'].fillna(liver_df['Albumin_and_Globulin_Ratio'].mean(), inplace=True)
 X = liver_df.drop(['Gender', 'Dataset'], axis=1)
 y = liver_df['Dataset']
@@ -119,3 +109,4 @@ elif option == "Prediction":
             probability = predict_liver_condition_probability(age, total_bilirubin, direct_bilirubin, alkaline_phosphotase, alamine_aminotransferase,
                                                               aspartate_aminotransferase, total_proteins, albumin, albumin_globulin_ratio, gender)
             st.write(f'Predicted Percentage of Having Liver Disease: {probability:.2f}%')
+
